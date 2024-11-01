@@ -7,23 +7,29 @@ export const CartSlice = createSlice({
   },
   reducers: {
     addItem: (state, action) => {
-        const { name, image, cost } = action.payload;
-        const existingItem = state.items.find(item => item.name === name);
-        if (existingItem) {
-            existingItem.quantity++;
-        } else {
-            state.items.push({ name, image, cost, quantity: 1 });
-        }
+      const { name, image, cost } = action.payload;
+      // Remove '$' and convert cost to a float
+      const numericCost = parseFloat(cost.replace(/[^0-9.-]+/g,"")); // This regex removes any non-numeric characters
+      if (isNaN(numericCost)) {
+        console.error('Invalid cost:', cost); // Log if cost is invalid
+        return; // Prevent adding item if cost is invalid
+      }
+      const existingItem = state.items.find(item => item.name === name);
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        state.items.push({ name, image, cost: numericCost, quantity: 1 });
+      }
     },
     removeItem: (state, action) => {
-        state.items = state.items.filter(item => item.name !== action.payload);
+      state.items = state.items.filter(item => item.name !== action.payload);
     },
     updateQuantity: (state, action) => {
-        const { name, quantity } = action.payload;
-        const itemToUpdate = state.items.find(item => item.name === name);
-        if (itemToUpdate) {
+      const { name, quantity } = action.payload;
+      const itemToUpdate = state.items.find(item => item.name === name);
+      if (itemToUpdate) {
         itemToUpdate.quantity = quantity;
-        }
+      }
     },
   },
 });
